@@ -1,3 +1,5 @@
+ARG APP_NAME=hello-world-nest
+
 # Stage 1: build the app
 FROM node:22-alpine AS build
 
@@ -7,18 +9,18 @@ WORKDIR /app
 COPY package.json package-lock.json nx.json tsconfig.base.json eslint.config.mjs ./
 
 # Copy all source code (apps, libs)
-COPY apps/ ./apps/
+COPY apps/$APP_NAME ./apps/$APP_NAME
 
 # Install dependencies
 RUN npm install
 
 # Build the NestJS app using nx
-RUN npx nx build hello-world-nest
+RUN npx nx build $APP_NAME
 
 # Stage 2: run the app
 FROM node:22-alpine AS runtime
 
-WORKDIR /app
+WORKDIR apps/$APP_NAME
 
 # Copy package files for production install
 COPY package.json package-lock.json ./
@@ -27,7 +29,7 @@ COPY package.json package-lock.json ./
 RUN npm install --production
 
 # Copy build output from build stage
-COPY --from=build /app/apps/hello-world-nest/dist ./dist
+COPY --from=build /app/apps/$APP_NAME/dist ./dist
 
 # Expose the port your app listens on
 EXPOSE 5000

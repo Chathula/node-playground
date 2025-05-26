@@ -1,4 +1,4 @@
-name: Build and Push Docker Images on Release
+name: Build & Push Multi-arch Docker Images on Release
 
 on:
   release:
@@ -10,32 +10,31 @@ jobs:
 
     strategy:
       matrix:
-        app: [hello-world-nest, another-app]
+        app: [hello-world-nest]
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Set up QEMU for multi-arch builds
+        uses: docker/setup-qemu-action@v2
         with:
-          node-version: 18
+          platforms: linux/amd64,linux/arm64
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      - name: Build Nx project ${{ matrix.app }}
-        run: npx nx build ${{ matrix.app }}
-
-      - name: Log in to Docker Hub
+      - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker image for ${{ matrix.app }}
+      - name: Build and push multi-arch Docker image for ${{ matrix.app }}
         run: |
-          IMAGE=chathula/${{ matrix.app }}
-          TAG=${{ github.ref_name }}
-          docker build -t $IMAGE:$TAG --build-arg APP_NAME=${{ matrix.app }} .
-          docker push $IMAGE:$TAG
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg APP_NAME=${{ matrix.app }} \
+            -t chathula/${{ matrix.app }}:${{ github.ref_name }} \
+            --push \
+            .
