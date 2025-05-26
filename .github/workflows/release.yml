@@ -36,5 +36,6 @@ jobs:
             --platform linux/amd64,linux/arm64 \
             --build-arg APP_NAME=${{ matrix.app }} \
             -t chathula/${{ matrix.app }}:${{ github.ref_name }} \
+            -f Dockerfile \
             --push \
             .
