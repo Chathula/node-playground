@@ -1,0 +1,26 @@
+{
+  "name": "@node-playground/hello-world-nest-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "implicitDependencies": [
+      "@node-playground/hello-world-nest"
+    ],
+    "targets": {
+      "e2e": {
+        "executor": "@nx/jest:jest",
+        "outputs": [
+          "{projectRoot}/test-output/jest/coverage"
+        ],
+        "options": {
+          "jestConfig": "apps/hello-world-nest-e2e/jest.config.ts",
+          "passWithNoTests": true
+        },
+        "dependsOn": [
+          "@node-playground/hello-world-nest:build",
+          "@node-playground/hello-world-nest:serve"
+        ]
+      }
+    }
+  }
+}
