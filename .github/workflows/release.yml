@@ -30,12 +30,11 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push multi-arch Docker image for ${{ matrix.app }}
+      - name: Build and push ${{ matrix.app }} image
         run: |
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
-            --build-arg APP_NAME=${{ matrix.app }} \
             -t chathula/${{ matrix.app }}:${{ github.ref_name }} \
-            -f Dockerfile \
             --push \
+            -f apps/${{ matrix.app }}/Dockerfile \
             .
